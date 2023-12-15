@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 from itertools import combinations
 
 
-# function to generate an n-gon
-def gen_polygon(n, r=1, cx=0, cy=0):
+# generates a regular n-gon inscribed in circle of given radius
+def gen_ngon(n, r):
     t = 2 * np.pi / n
-    pts = [[r*np.cos(t*i), r*np.sin(t*i)] for i in range(n)]
-    return [cx, cy] + np.array(pts)
+    pts = [[np.cos(t*i), np.sin(t*i)] for i in range(n)]
+    return r * np.array(pts)
 
 
 # creates and solves the dual
@@ -49,6 +49,7 @@ def ngon_dual(n, pts, lam):
     prob = cp.Problem(cp.Maximize(a), constraints)
     prob.solve()
 
+    # return a.value, b.value
     return a.value, b.value, [d[i].value for i in range(n)]
 
 
@@ -57,8 +58,6 @@ def make_heatmap(n, arr, cmin=None, cmax=None, title='Heatmap'):
     plt.imshow(arr, cmap='coolwarm', interpolation='nearest', vmin=cmin, vmax=cmax)
     plt.colorbar()
     plt.title(title)
-    plt.xticks(np.arange(0, n, 2))
-    plt.yticks(np.arange(0, n, 2))
     plt.gca().invert_yaxis()
     plt.show()
 
