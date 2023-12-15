@@ -12,9 +12,7 @@ def gen_polygon(n, r=1, cx=0, cy=0):
 
 
 # creates and solves the dual
-def ngon_dual(n):
-    pts = gen_polygon(n, n / (2 * np.pi))
-
+def ngon_dual(n, pts, lam):
     a = cp.Variable()
     b = cp.Variable((n, n))
     d = [cp.Variable((n, n)) for _ in range(n)]
@@ -30,7 +28,7 @@ def ngon_dual(n):
         constraints += [d[i][:, i] == 0]
     for i in range(n):
         # here we set lambda = n
-        constraints.append(a + cp.sum(b[i]) + cp.sum(d[i]) <= n)
+        constraints.append(a + cp.sum(b[i]) + cp.sum(d[i]) <= lam)
     for i, j, k in combinations(range(n), 3):
         # define delta_{ijk} for middle vertex i and j < k
         constraints.append(d[i][k][j] == 0)
@@ -55,7 +53,7 @@ def ngon_dual(n):
 
 
 # takes in an n x n numpy array and creates a heatmap
-def make_heatmap(arr, cmin=None, cmax=None, title='Heatmap'):
+def make_heatmap(n, arr, cmin=None, cmax=None, title='Heatmap'):
     plt.imshow(arr, cmap='coolwarm', interpolation='nearest', vmin=cmin, vmax=cmax)
     plt.colorbar()
     plt.title(title)
@@ -65,16 +63,17 @@ def make_heatmap(arr, cmin=None, cmax=None, title='Heatmap'):
     plt.show()
 
 
-n = 20
-a, b, d = ngon_dual(n)
-print('alpha:', np.round(a, 3))
-make_heatmap(b, cmin=0, cmax=1, title=f'betas, n={n}')
-delta = np.zeros((n, n))
-for i in range(1, n - 1):
-    for j in range(1, n - i):
-        total = 0
-        for k in range(n):
-            k1, k2 = sorted([(k+i) % n, (k-j) % n])
-            total += d[k][k1][k2]
-        delta[i][j] = total
-make_heatmap(delta / n, title=f'deltas (averaged), n={n}')
+# n = 20
+# pts = gen_polygon(n, n / (2 * np.pi))
+# a, b, d = ngon_dual(n, pts)
+# print('alpha:', np.round(a, 3))
+# make_heatmap(b, cmin=0, cmax=1, title=f'betas, n={n}')
+# delta = np.zeros((n, n))
+# for i in range(1, n - 1):
+#     for j in range(1, n - i):
+#         total = 0
+#         for k in range(n):
+#             k1, k2 = sorted([(k+i) % n, (k-j) % n])
+#             total += d[k][k1][k2]
+#         delta[i][j] = total
+# make_heatmap(delta / n, title=f'deltas (averaged), n={n}')
